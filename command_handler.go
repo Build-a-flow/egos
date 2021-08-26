@@ -1,7 +1,9 @@
 package finkgoes
 
+import "context"
+
 type CommandHandler interface {
-	Handle(Command) error
+	Handle(ctx context.Context, command Command) error
 }
 
 type CommandHandlerBase struct {

@@ -1,8 +1,8 @@
 package finkgoes
 
 import (
-	"github.com/satori/go.uuid"
 	"reflect"
+	"github.com/gofrs/uuid"
 
 )
 
