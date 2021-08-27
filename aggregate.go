@@ -2,10 +2,7 @@ package finkgoes
 
 import (
 	"log"
-	"time"
 )
-
-var TimeNow = time.Now
 
 type AggregateType string
 
@@ -15,26 +12,28 @@ func (at AggregateType) StreamNameFor(aggregateId string) string {
 
 type AggregateRoot interface {
 	AggregateID() string
-	Version() int
-	IncrementVersion()
-	SetVersion(version int)
-	ApplyEvent(event Event) error
-	AppendEvent(aggregate AggregateRoot, event interface{})
-	GetEvents() []Event
-	ClearEvents()
+	CurrentVersion() int
+	OriginalVersion() int
+	When(event Event)
+	Apply(aggregate AggregateRoot, event interface{})
+	Fold(aggregate AggregateRoot, events []Event)
+	GetChanges() []Event
+	ClearChanges()
 }
 
 type AggregateBase struct {
 	id      string
-	version int
-	events  []Event
+	currentVersion int
+	originalVersion int
+	changes  []Event
 }
 
 func NewAggregateBase(id string) *AggregateBase {
 	return &AggregateBase{
 		id:      id,
-		events:  []Event{},
-		version: -1,
+		changes:  []Event{},
+		currentVersion: -1,
+		originalVersion: -1,
 	}
 }
 
@@ -42,32 +41,34 @@ func (a *AggregateBase) AggregateID() string {
 	return a.id
 }
 
-func (a *AggregateBase) Version() int {
-	return a.version
+func (a *AggregateBase) CurrentVersion() int {
+	return a.currentVersion
 }
 
-func (a *AggregateBase) IncrementVersion()  {
-	a.version++
+func (a *AggregateBase) OriginalVersion() int {
+	return a.originalVersion
 }
 
-func (a *AggregateBase) SetVersion(version int) {
-	a.version = version
+func (a *AggregateBase) Apply(aggregate AggregateRoot, event interface{}) {
+	eventMessage := NewEventMessage(event)
+	aggregate.When(eventMessage)
+	a.changes = append(a.changes, eventMessage)
+	log.Println(typeOf(event))
+	a.currentVersion++
 }
 
-func (a *AggregateBase) AppendEvent(aggregate AggregateRoot, event interface{}) {
-	a.IncrementVersion()
-	eventMessage := NewEventMessage(event, a.version, TimeNow())
-	err := aggregate.ApplyEvent(eventMessage)
-	if err != nil {
-		log.Fatalf(err.Error())
+func (a *AggregateBase) Fold(aggregate AggregateRoot, events []Event) {
+	for _, e := range events {
+		a.currentVersion++
+		a.originalVersion++
+		aggregate.When(e)
 	}
-	a.events = append(a.events, eventMessage)
 }
 
-func (a *AggregateBase) GetEvents() []Event {
-	return a.events
+func (a *AggregateBase) GetChanges() []Event {
+	return a.changes
 }
 
-func (a *AggregateBase) ClearEvents() {
-	a.events = []Event{}
+func (a *AggregateBase) ClearChanges() {
+	a.changes = []Event{}
 }

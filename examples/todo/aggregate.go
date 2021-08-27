@@ -19,23 +19,36 @@ func NewTodo(id string) *Todo {
 }
 
 func (a *Todo) Create() error {
-	a.AggregateBase.AppendEvent(a, &Created{ID: a.AggregateID()})
+	a.AggregateBase.Apply(a, &Created{ID: a.AggregateID()})
 	return nil
 }
 
-func (a *Todo) ApplyEvent(event finkgoes.Event) error {
-	switch e := event.Event().(type) {
+func (a *Todo) SuperChange(count int) error {
+	a.AggregateBase.Apply(a, &SuperChange{ID: a.AggregateID(), Count: count})
+	return nil
+}
+
+func (a *Todo) When(event finkgoes.Event) {
+	switch e := event.GetData().(type) {
 	case *Created:
 		fmt.Println("EVENT ID %s", e.ID)
 		a.count = 1
+	case *SuperChange:
+		fmt.Println("EVENT ID 2 %s", e.ID)
+		a.count = e.Count
 	}
-
-	return nil
 }
+
 func (a *Todo) Count() int {
 	return a.count
 }
 
 type Created struct {
-	ID   string
+	ID   string `json:"id"`
+}
+
+
+type SuperChange struct {
+	ID   string `json:"id"`
+	Count int  `json:"count"`
 }

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/finktek/eventum"
 	"github.com/finktek/eventum/eventstore"
-	"github.com/gofrs/uuid"
+		"github.com/gofrs/uuid"
 	"log"
 )
 
@@ -16,8 +16,8 @@ func main()  {
 	commandHandler := &TestCommandHandler{
 		AggregateStore: todoAggregateStore,
 	}
-	cmdId, _ := uuid.NewV4()
-	cmd := finkgoes.NewCommand("string-id", &CreateCommand{Id: cmdId})
+	cmdId, _ := uuid.FromString("b80abf6a-d2a0-4303-b84d-3ebce1edab23")
+	cmd := finkgoes.NewCommand(&TestCommand{Id: cmdId})
 	err := commandHandler.Handle(context.Background(), cmd)
 	if err != nil {
 		fmt.Println(err)
@@ -31,14 +31,14 @@ type TestCommandHandler struct {
 func (h *TestCommandHandler) Handle(ctx context.Context, command finkgoes.Command) error {
 	switch cmd := command.Command().(type) {
 	case *CreateCommand:
-		fmt.Println(cmd.Id )
 		todo := NewTodo(cmd.Id.String())
-		fmt.Println(todo.Count())
 		todo.Create()
-		fmt.Println(todo.Count())
+		todo.SuperChange(22)
 		return h.AggregateStore.Store(ctx, todo)
 	case *TestCommand:
+		aa, _ := h.AggregateStore.Load(ctx, cmd.Id.String())
 		fmt.Println("I AM TEST COMMMAND")
+		log.Println(aa.AggregateID())
 	default:
 		log.Fatalf("TestCommandHandlers has received a command that it is does not know how to handle, %#v", cmd)
 	}
@@ -48,6 +48,7 @@ func (h *TestCommandHandler) Handle(ctx context.Context, command finkgoes.Comman
 
 
 type TestCommand struct {
+	Id uuid.UUID
 }
 
 type CreateCommand struct {

@@ -1,51 +1,44 @@
 package finkgoes
 
-import "time"
+import (
+	"encoding/json"
+	"log"
+)
 
 type Event interface {
-	GetHeaders() map[string]interface{}
-	SetHeader(string, interface{})
-	Event() interface{}
-	Version() int
+	GetData() interface{}
 	EventType() string
+	Serialize() (serializedData []byte, serializedHeaders []byte)
 }
 
 type EventDescriptor struct {
-	event   interface{}
-	headers map[string]interface{}
-	version int
-	timestamp time.Time
+	Data   interface{}
+	Headers map[string]interface{}
 }
 
-func NewEventMessage(event interface{}, version int, timestamp time.Time) *EventDescriptor {
+func NewEventMessage(data interface{}) *EventDescriptor {
 	return &EventDescriptor{
-		event:   event,
-		headers: make(map[string]interface{}),
-		version: version,
-		timestamp: timestamp,
+		Data:   data,
+		Headers: make(map[string]interface{}),
 	}
 }
 
-func (c *EventDescriptor) EventType() string {
-	return typeOf(c.event)
+func (e EventDescriptor) GetData() interface{} {
+	return e.Data
 }
 
-func (c *EventDescriptor) GetHeaders() map[string]interface{} {
-	return c.headers
+func (e EventDescriptor) EventType() string {
+	return typeOf(e.Data)
 }
 
-func (c *EventDescriptor) SetHeader(key string, value interface{}) {
-	c.headers[key] = value
-}
-
-func (c *EventDescriptor) Event() interface{} {
-	return c.event
-}
-
-func (c *EventDescriptor) Timestamp() time.Time {
-	return c.timestamp
-}
-
-func (c *EventDescriptor) Version() int {
-	return c.version
+func (e EventDescriptor) Serialize() (serializedData []byte, serializedHeaders []byte) {
+	serializedData, err := json.Marshal(e.Data)
+	if err != nil {
+		log.Fatalf("error serializing event data: %s", err)
+	}
+	serializedHeaders, err = json.Marshal(e.Headers)
+	if err != nil {
+		log.Fatalf("error serializing event headers: %s", err)
+	}
+	return
 }

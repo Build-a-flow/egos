@@ -2,13 +2,13 @@ package eventstore
 
 import (
 	"context"
+	"github.com/EventStore/EventStore-Client-Go/client"
 	"github.com/EventStore/EventStore-Client-Go/connection"
 	"github.com/EventStore/EventStore-Client-Go/direction"
 	"github.com/EventStore/EventStore-Client-Go/messages"
 	"github.com/EventStore/EventStore-Client-Go/stream_position"
 	"github.com/EventStore/EventStore-Client-Go/streamrevision"
 	"github.com/finktek/eventum"
-	"github.com/EventStore/EventStore-Client-Go/client"
 	"github.com/gofrs/uuid"
 	"log"
 )
@@ -33,27 +33,61 @@ func NewEventStoreDbClient(connectionString string) (*EventStore, error) {
 	}, nil
 }
 
-func (es EventStore) AppendEvents(streamName string, expectedVersion int, events []finkgoes.Event) error {
-	id, _ :=  uuid.NewV4()
-	_, err := es.client.AppendToStream(context.Background(), streamName, streamrevision.StreamRevisionAny, []messages.ProposedEvent{{EventID: id, EventType: "EventTypePVZ" }})
+func (es EventStore) AppendEvents(ctx context.Context, streamName string, expectedVersion int, events []finkgoes.Event) error {
+	log.Println("name %s", streamName)
+	log.Println("v %s", expectedVersion)
+	_, err := es.client.AppendToStream(ctx, streamName, streamrevision.StreamRevisionAny, eventsToProposedEvents(events))
 	if err != nil {
-		log.Fatalf("Unexpected failure setting up test connection: %s", err.Error())
+		log.Fatalf("Unexpected failure appending events: %s", err.Error())
 	}
 	return nil
 }
-func (es EventStore) ReadEvents(streamName string, start int, limit int) []finkgoes.Event {
-	events, err := es.client.ReadAllEvents(context.Background(), direction.Forwards, stream_position.Start{}, 1000, true)
+func (es EventStore) ReadEvents(ctx context.Context, streamName string, start int, limit int) []finkgoes.Event {
+	events, err := es.client.ReadStreamEvents(context.Background(), direction.Forwards, streamName, stream_position.Start{}, 1000, true)
 	if err != nil {
 		log.Fatalf("Unexpected failure setting up test connection: %s", err.Error())
 	}
-	for i := 0; i < len(events); i++ {
-		log.Println(events[i].GetOriginalEvent().EventType)
-	}
-	return nil
+	data := resolvedEventsToEvents(events)
+	return data
 }
-func (es EventStore) ReadEventsBackwards(streamName string, limit int) []finkgoes.Event { return nil }
-func (es EventStore) ReadStream(streamName string, start int, callback func()) {
+func (es EventStore) ReadEventsBackwards(ctx context.Context, streamName string, limit int) []finkgoes.Event { return nil }
+func (es EventStore) ReadStream(ctx context.Context, streamName string, start int, callback func()) {
 	callback()
 }
-func (es EventStore) TruncateStream(streamName string, position int, expectedVersion int) {}
-func (es EventStore) DeleteStream(streamName string, expectedVersion int) {}
+func (es EventStore) TruncateStream(ctx context.Context, streamName string, position int, expectedVersion int) {}
+func (es EventStore) DeleteStream(ctx context.Context, streamName string, expectedVersion int) {}
+
+func eventsToProposedEvents(events []finkgoes.Event) []messages.ProposedEvent  {
+	var proposedEvents []messages.ProposedEvent
+	for _, event := range events {
+		serializedData, serializedHeaders := event.Serialize()
+		msg := messages.ProposedEvent{
+			EventID: uuid.Must(uuid.NewV4()),
+			EventType: event.EventType(),
+			ContentType: "application/json",
+			Data: serializedData,
+			UserMetadata: serializedHeaders,
+		}
+
+		proposedEvents = append(proposedEvents, msg)
+	}
+	return proposedEvents
+}
+func resolvedEventsToEvents(resolvedEvents []messages.ResolvedEvent) []finkgoes.Event  {
+	var events []finkgoes.Event
+	for _, resolvedEvent := range resolvedEvents {
+		log.Println(resolvedEvent.Event.EventID)
+		log.Println(resolvedEvent.Event.EventType)
+		log.Println(resolvedEvent.Event.StreamID)
+		log.Println(resolvedEvent.Event.EventNumber)
+		log.Println(string(resolvedEvent.Event.Data))
+		msg := &finkgoes.EventDescriptor{
+			Data:   nil,
+			Headers: make(map[string]interface{}),
+		}
+
+		events = append(events, msg)
+	}
+	return events
+}
+
