@@ -12,10 +12,8 @@ import (
 func main()  {
 	eventStore, _ := eventstore.NewEventStoreDbClient("esdb://localhost:2113?tls=false")
 	todoAggregateStore, _:= finkgoes.NewAggregateStore(eventStore, &Todo{})
+	commandHandler := &TestCommandHandler{AggregateStore: todoAggregateStore}
 
-	commandHandler := &TestCommandHandler{
-		AggregateStore: todoAggregateStore,
-	}
 	cmdId := uuid.Must(uuid.NewV4())
 	cmd := finkgoes.NewCommand(&CreateCommand{Id: cmdId})
 
