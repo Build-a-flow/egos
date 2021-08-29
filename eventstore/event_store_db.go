@@ -2,6 +2,7 @@ package eventstore
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/EventStore/EventStore-Client-Go/client"
 	"github.com/EventStore/EventStore-Client-Go/connection"
 	"github.com/EventStore/EventStore-Client-Go/direction"
@@ -34,8 +35,6 @@ func NewEventStoreDbClient(connectionString string) (*EventStore, error) {
 }
 
 func (es EventStore) AppendEvents(ctx context.Context, streamName string, expectedVersion int, events []finkgoes.Event) error {
-	log.Println("name %s", streamName)
-	log.Println("v %s", expectedVersion)
 	_, err := es.client.AppendToStream(ctx, streamName, streamrevision.StreamRevisionAny, eventsToProposedEvents(events))
 	if err != nil {
 		log.Fatalf("Unexpected failure appending events: %s", err.Error())
@@ -76,16 +75,12 @@ func eventsToProposedEvents(events []finkgoes.Event) []messages.ProposedEvent  {
 func resolvedEventsToEvents(resolvedEvents []messages.ResolvedEvent) []finkgoes.Event  {
 	var events []finkgoes.Event
 	for _, resolvedEvent := range resolvedEvents {
-		log.Println(resolvedEvent.Event.EventID)
-		log.Println(resolvedEvent.Event.EventType)
-		log.Println(resolvedEvent.Event.StreamID)
-		log.Println(resolvedEvent.Event.EventNumber)
-		log.Println(string(resolvedEvent.Event.Data))
+		eventData := finkgoes.GetEventInstance(resolvedEvent.Event.EventType)
+		json.Unmarshal(resolvedEvent.Event.Data, &eventData)
 		msg := &finkgoes.EventDescriptor{
-			Data:   nil,
+			Data:   eventData,
 			Headers: make(map[string]interface{}),
 		}
-
 		events = append(events, msg)
 	}
 	return events

@@ -1,23 +1,13 @@
 package finkgoes
 
-import (
-	"log"
-)
-
-type AggregateType string
-
-func (at AggregateType) StreamNameFor(aggregateId string) string {
-	return string(at) + "_" + aggregateId
-}
-
 type AggregateRoot interface {
 	AggregateID() string
 	CurrentVersion() int
 	OriginalVersion() int
 	When(event Event)
 	Apply(aggregate AggregateRoot, event interface{})
-	Fold(aggregate AggregateRoot, events []Event)
 	GetChanges() []Event
+	Fold(aggregate AggregateRoot, events []Event)
 	ClearChanges()
 }
 
@@ -53,8 +43,15 @@ func (a *AggregateBase) Apply(aggregate AggregateRoot, event interface{}) {
 	eventMessage := NewEventMessage(event)
 	aggregate.When(eventMessage)
 	a.changes = append(a.changes, eventMessage)
-	log.Println(typeOf(event))
 	a.currentVersion++
+}
+
+func (a *AggregateBase) GetChanges() []Event {
+	return a.changes
+}
+
+func (a *AggregateBase) ClearChanges() {
+	a.changes = []Event{}
 }
 
 func (a *AggregateBase) Fold(aggregate AggregateRoot, events []Event) {
@@ -65,10 +62,6 @@ func (a *AggregateBase) Fold(aggregate AggregateRoot, events []Event) {
 	}
 }
 
-func (a *AggregateBase) GetChanges() []Event {
-	return a.changes
-}
-
-func (a *AggregateBase) ClearChanges() {
-	a.changes = []Event{}
+func StreamNameFor(aggregate AggregateRoot, aggregateId string) string {
+	return typeOf(aggregate) + "_" + aggregateId
 }

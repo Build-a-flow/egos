@@ -5,32 +5,32 @@ import (
 )
 
 type AggregateStore interface {
-	Load(ctx context.Context, aggregateID string) (AggregateRoot, error)
+	Load(ctx context.Context, aggregate AggregateRoot, aggregateID string) error
 	Store(ctx context.Context, aggregate AggregateRoot) error
 }
 
 type AggregateStoreBase struct {
-	aggregateType AggregateType
+	aggregate AggregateRoot
 	eventStore EventStore
 }
 
-func NewAggregateStore(eventStore EventStore, aggregateType AggregateType) (*AggregateStoreBase, error) {
+func NewAggregateStore(eventStore EventStore, aggregate AggregateRoot) (*AggregateStoreBase, error) {
 	d := &AggregateStoreBase{
-		aggregateType: aggregateType,
+		aggregate: aggregate,
 		eventStore: eventStore,
 	}
 	return d, nil
 }
 
-func (as *AggregateStoreBase) Load(ctx context.Context, aggregateID string) (AggregateRoot, error) {
-	stream := as.aggregateType.StreamNameFor(aggregateID)
-	as.eventStore.ReadEvents(ctx, stream, -1, -1)
-	return nil, nil
+func (as *AggregateStoreBase) Load(ctx context.Context, aggregate AggregateRoot, aggregateID string) error {
+	stream := StreamNameFor(aggregate, aggregateID)
+	events := as.eventStore.ReadEvents(ctx, stream, -1, -1)
+	aggregate.Fold(aggregate, events)
+	return nil
 }
 
 func (as *AggregateStoreBase) Store(ctx context.Context, aggregate AggregateRoot) error {
-	stream := as.aggregateType.StreamNameFor(aggregate.AggregateID())
-
+	stream := StreamNameFor(aggregate, aggregate.AggregateID())
 	changes := aggregate.GetChanges()
 	if len(changes) == 0 {
 		return nil
