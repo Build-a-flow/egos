@@ -9,14 +9,14 @@ import (
 
 type TodoList struct {
 	*finkgoes.AggregateBase
-	Title string      `json:"Title"`
-	Items []*TodoItem `json:"Items"`
+	Title string      `json:"title"`
+	Items []*TodoItem `json:"items"`
 }
 
 type TodoItem struct {
 	TodoItemID  uuid.UUID `json:"item_id"`
-	Description string    `json:"Description"`
-	Done        bool      `json:"Done"`
+	Description string    `json:"description"`
+	Done        bool      `json:"is_done"`
 }
 
 func InitTodoList(id string) *TodoList {
@@ -39,11 +39,9 @@ func (t *TodoList) AddItem(todoItemID uuid.UUID, todoDescription string) error {
 }
 
 func (t *TodoList) ItemDone(todoItemID uuid.UUID) error {
-	for _, i := range t.Items {
-		if i.TodoItemID == todoItemID && i.Done == false {
-			t.AggregateBase.Apply(t, &TodoItemDone{ID: t.AggregateID(), TodoItemID: i.TodoItemID.String()})
-			return nil
-		}
+	if item := t.findItem(todoItemID); item != nil && item.Done == false {
+		t.AggregateBase.Apply(t, &TodoItemDone{ID: t.AggregateID(), TodoItemID: item.TodoItemID.String()})
+		return nil
 	}
 	return fmt.Errorf("could not mark item as Done")
 }
@@ -55,10 +53,17 @@ func (t *TodoList) When(event finkgoes.Event) {
 	case *TodoItemAdded:
 		t.Items = append(t.Items, &TodoItem{TodoItemID: uuid.Must(uuid.FromString(e.TodoItemID)), Description:e.Description, Done: false})
 	case *TodoItemDone:
-		for _, i := range t.Items {
-			if i.TodoItemID == uuid.Must(uuid.FromString(e.TodoItemID)) {
-				i.Done = true
-			}
+		if item := t.findItem(uuid.Must(uuid.FromString(e.TodoItemID))); item != nil {
+			item.Done = true
 		}
 	}
+}
+
+func (t *TodoList) findItem(todoItemID uuid.UUID) *TodoItem {
+	for _, i := range t.Items {
+		if i.TodoItemID == todoItemID {
+			return i
+		}
+	}
+	return nil
 }
