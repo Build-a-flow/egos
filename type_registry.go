@@ -13,5 +13,8 @@ func RegisterEvent(event interface{}) error {
 }
 
 func GetEventInstance(eventName string) interface{} {
+	if eventRegistry[eventName] == nil {
+		return nil
+	}
 	return reflect.New(eventRegistry[eventName]).Interface()
 }

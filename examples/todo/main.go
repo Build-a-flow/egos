@@ -7,8 +7,10 @@ import (
 	"github.com/finktek/eventum"
 	"github.com/finktek/eventum/eventstore"
 	"github.com/finktek/eventum/examples/todo/domain"
+	"github.com/finktek/eventum/subscriptions"
 	"github.com/gofrs/uuid"
 	"log"
+	"time"
 )
 
 func main()  {
@@ -66,4 +68,25 @@ func main()  {
 
 	log.Println("TODO ", string(todoData))
 
+	var subscription subscriptions.SubscriptionService
+	subscription, _ = eventstore.NewAllStreamSubscription("esdb://localhost:2113?tls=false")
+	subscription.AddHandler(ListEventHandler{})
+	time.Sleep(time.Second * 1)
+	subscription.Start(context.Background())
+	time.Sleep(time.Second * 10)
+
+}
+
+type ListEventHandler struct {
+}
+
+func (h ListEventHandler) Handle(event finkgoes.Event) {
+	switch e := event.GetData().(type) {
+	case *domain.TodoListCreated:
+		log.Println("CREATED", e.ID)
+	case *domain.TodoItemAdded:
+		log.Println("ADDED", e.ID)
+	case *domain.TodoItemDone:
+		log.Println("DONE ", e.ID)
+	}
 }

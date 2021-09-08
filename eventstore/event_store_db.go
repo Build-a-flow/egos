@@ -76,12 +76,14 @@ func resolvedEventsToEvents(resolvedEvents []messages.ResolvedEvent) []finkgoes.
 	var events []finkgoes.Event
 	for _, resolvedEvent := range resolvedEvents {
 		eventData := finkgoes.GetEventInstance(resolvedEvent.Event.EventType)
-		json.Unmarshal(resolvedEvent.Event.Data, &eventData)
-		msg := &finkgoes.EventDescriptor{
-			Data:   eventData,
-			Headers: make(map[string]interface{}),
+		if eventData != nil {
+			json.Unmarshal(resolvedEvent.Event.Data, &eventData)
+			msg := &finkgoes.EventDescriptor{
+				Data:   eventData,
+				Headers: make(map[string]interface{}),
+			}
+			events = append(events, msg)
 		}
-		events = append(events, msg)
 	}
 	return events
 }
