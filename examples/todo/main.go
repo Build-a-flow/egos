@@ -7,6 +7,7 @@ import (
 	"github.com/finktek/eventum"
 	"github.com/finktek/eventum/eventstore"
 	"github.com/finktek/eventum/examples/todo/domain"
+	subscriptions2 "github.com/finktek/eventum/mongodb"
 	"github.com/finktek/eventum/subscriptions"
 	"github.com/gofrs/uuid"
 	"log"
@@ -69,11 +70,13 @@ func main()  {
 	log.Println("TODO ", string(todoData))
 
 	var subscription subscriptions.SubscriptionService
-	subscription, _ = eventstore.NewAllStreamSubscription("esdb://localhost:2113?tls=false")
+	var checkpointStore subscriptions.CheckpointStore
+	checkpointStore, _ = subscriptions2.NewMongoDbCheckpointStore()
+	subscription, _ = eventstore.NewAllStreamSubscription("esdb://localhost:2113?tls=false", "list-suub", checkpointStore)
 	subscription.AddHandler(ListEventHandler{})
 	time.Sleep(time.Second * 1)
 	subscription.Start(context.Background())
-	time.Sleep(time.Second * 10)
+	time.Sleep(time.Second * 100)
 
 }
 

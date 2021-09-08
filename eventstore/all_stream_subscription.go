@@ -5,18 +5,21 @@ import (
 	"github.com/EventStore/EventStore-Client-Go/client"
 	"github.com/EventStore/EventStore-Client-Go/connection"
 	"github.com/EventStore/EventStore-Client-Go/messages"
+	"github.com/EventStore/EventStore-Client-Go/position"
 	"github.com/EventStore/EventStore-Client-Go/stream_position"
 	"github.com/finktek/eventum/subscriptions"
 	"log"
 )
 
 type AllStreamSubscription struct {
-	client	*client.Client
-	handlers []subscriptions.EventHandler
-	subscription *client.Subscription
+	client				*client.Client
+	subscriptionID		string
+	checkpointStore		subscriptions.CheckpointStore
+	handlers 			[]subscriptions.EventHandler
+	subscription 		*client.Subscription
 }
 
-func NewAllStreamSubscription(connectionString string) (*AllStreamSubscription, error) {
+func NewAllStreamSubscription(connectionString string, subscriptionID string, checkpointStore subscriptions.CheckpointStore) (*AllStreamSubscription, error) {
 	eventStoreDbConfig, err := connection.ParseConnectionString(connectionString)
 	if err != nil {
 		log.Fatalf("Unexpected configuration error: %s", err.Error())
@@ -29,11 +32,14 @@ func NewAllStreamSubscription(connectionString string) (*AllStreamSubscription, 
 
 	return &AllStreamSubscription{
 		client: eventStoreDbClient,
+		subscriptionID: subscriptionID,
+		checkpointStore: checkpointStore,
 	}, nil
 }
 
 func (b *AllStreamSubscription) Start(ctx context.Context) {
-	b.subscription = b.subscribe(ctx)
+	checkpoint := b.checkpointStore.GetLastCheckpoint(b.subscriptionID)
+	b.subscription = b.subscribe(ctx, checkpoint)
 }
 
 func (b *AllStreamSubscription) Stop() {
@@ -46,9 +52,12 @@ func (b *AllStreamSubscription) AddHandler(handler subscriptions.EventHandler) {
 	b.handlers = append(b.handlers, handler)
 }
 
-func (b *AllStreamSubscription) subscribe(ctx context.Context) *client.Subscription {
-	subscription, _ := b.client.SubscribeToAll(ctx, stream_position.Start{}, false)
-
+func (b *AllStreamSubscription) subscribe(ctx context.Context, checkpoint subscriptions.Checkpoint) *client.Subscription {
+	streamPos := position.Position{Commit: checkpoint.Position, Prepare: checkpoint.Position}
+	subscription, err := b.client.SubscribeToAll(ctx, stream_position.Position{Value: streamPos}, false)
+	if err != nil {
+		log.Fatalf("error subscribing %s", err)
+	}
 	go func() {
 		for {
 			subEvent := subscription.Recv()
@@ -61,6 +70,7 @@ func (b *AllStreamSubscription) subscribe(ctx context.Context) *client.Subscript
 				event := subEvent.EventAppeared
 				for _, h := range b.handlers {
 					if h != nil {
+						log.Println(event.GetOriginalEvent().Position)
 						data := resolvedEventsToEvents([]messages.ResolvedEvent{*event})
 						if len(data) > 0 {
 							h.Handle(data[0])
