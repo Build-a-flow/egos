@@ -1,6 +1,6 @@
 package domain
 
-import "github.com/google/uuid"
+import "github.com/gofrs/uuid"
 
 type CreateTodoList struct {
 	Id    uuid.UUID

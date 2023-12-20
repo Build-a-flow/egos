@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/build-a-flow/egos"
-	"github.com/google/uuid"
+	"github.com/gofrs/uuid"
 )
 
 type TodoList struct {
@@ -52,9 +52,9 @@ func (t *TodoList) When(event egos.Event) {
 	case *TodoListCreated:
 		t.Title = e.Title
 	case *TodoItemAdded:
-		t.Items = append(t.Items, &TodoItem{TodoItemID: uuid.Must(uuid.Parse(e.TodoItemID)), Description:e.Description, Done: false})
+		t.Items = append(t.Items, &TodoItem{TodoItemID: uuid.Must(uuid.FromString(e.TodoItemID)), Description: e.Description, Done: false})
 	case *TodoItemDone:
-		if item := t.findItem(uuid.Must(uuid.Parse(e.TodoItemID))); item != nil {
+		if item := t.findItem(uuid.Must(uuid.FromString(e.TodoItemID))); item != nil {
 			item.Done = true
 		}
 	}
