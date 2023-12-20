@@ -1,4 +1,4 @@
-package finkgoes
+package egos
 
 type Command interface {
 	Headers() map[string]interface{}

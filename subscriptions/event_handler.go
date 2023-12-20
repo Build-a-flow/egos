@@ -1,7 +1,7 @@
 package subscriptions
 
-import finkgoes "github.com/finktek/eventum"
+import "github.com/build-a-flow/egos"
 
 type EventHandler interface {
-	Handle(event finkgoes.Event)
+	Handle(event egos.Event)
 }

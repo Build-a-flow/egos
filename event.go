@@ -1,4 +1,4 @@
-package finkgoes
+package egos
 
 import (
 	"encoding/json"
@@ -12,13 +12,13 @@ type Event interface {
 }
 
 type EventDescriptor struct {
-	Data   interface{}
+	Data    interface{}
 	Headers map[string]interface{}
 }
 
 func NewEventMessage(data interface{}) *EventDescriptor {
 	return &EventDescriptor{
-		Data:   data,
+		Data:    data,
 		Headers: make(map[string]interface{}),
 	}
 }

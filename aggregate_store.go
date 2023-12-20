@@ -1,4 +1,4 @@
-package finkgoes
+package egos
 
 import (
 	"context"
@@ -10,13 +10,13 @@ type AggregateStore interface {
 }
 
 type AggregateStoreBase struct {
-	aggregate AggregateRoot
+	aggregate  AggregateRoot
 	eventStore EventStore
 }
 
 func NewAggregateStore(eventStore EventStore, aggregate AggregateRoot) (*AggregateStoreBase, error) {
 	d := &AggregateStoreBase{
-		aggregate: aggregate,
+		aggregate:  aggregate,
 		eventStore: eventStore,
 	}
 	return d, nil

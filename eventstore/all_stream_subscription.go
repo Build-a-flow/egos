@@ -2,21 +2,22 @@ package eventstore
 
 import (
 	"context"
+	"log"
+
 	"github.com/EventStore/EventStore-Client-Go/client"
 	"github.com/EventStore/EventStore-Client-Go/connection"
 	"github.com/EventStore/EventStore-Client-Go/messages"
 	"github.com/EventStore/EventStore-Client-Go/position"
 	"github.com/EventStore/EventStore-Client-Go/stream_position"
-	"github.com/finktek/eventum/subscriptions"
-	"log"
+	"github.com/build-a-flow/egos/subscriptions"
 )
 
 type AllStreamSubscription struct {
-	client				*client.Client
-	subscriptionID		string
-	checkpointStore		subscriptions.CheckpointStore
-	handlers 			[]subscriptions.EventHandler
-	subscription 		*client.Subscription
+	client          *client.Client
+	subscriptionID  string
+	checkpointStore subscriptions.CheckpointStore
+	handlers        []subscriptions.EventHandler
+	subscription    *client.Subscription
 }
 
 func NewAllStreamSubscription(connectionString string, subscriptionID string, checkpointStore subscriptions.CheckpointStore) (*AllStreamSubscription, error) {
@@ -31,8 +32,8 @@ func NewAllStreamSubscription(connectionString string, subscriptionID string, ch
 	}
 
 	return &AllStreamSubscription{
-		client: eventStoreDbClient,
-		subscriptionID: subscriptionID,
+		client:          eventStoreDbClient,
+		subscriptionID:  subscriptionID,
 		checkpointStore: checkpointStore,
 	}, nil
 }

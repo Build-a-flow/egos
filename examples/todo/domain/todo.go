@@ -3,12 +3,13 @@ package domain
 import (
 	"errors"
 	"fmt"
-	"github.com/finktek/eventum"
-	"github.com/gofrs/uuid"
+
+	"github.com/build-a-flow/egos"
+	"github.com/google/uuid"
 )
 
 type TodoList struct {
-	*finkgoes.AggregateBase
+	*egos.AggregateBase
 	Title string      `json:"title"`
 	Items []*TodoItem `json:"items"`
 }
@@ -21,7 +22,7 @@ type TodoItem struct {
 
 func InitTodoList(id string) *TodoList {
 	return &TodoList{
-		AggregateBase: finkgoes.NewAggregateBase(id),
+		AggregateBase: egos.NewAggregateBase(id),
 	}
 }
 
@@ -46,14 +47,14 @@ func (t *TodoList) ItemDone(todoItemID uuid.UUID) error {
 	return fmt.Errorf("could not mark item as Done")
 }
 
-func (t *TodoList) When(event finkgoes.Event) {
+func (t *TodoList) When(event egos.Event) {
 	switch e := event.GetData().(type) {
 	case *TodoListCreated:
 		t.Title = e.Title
 	case *TodoItemAdded:
-		t.Items = append(t.Items, &TodoItem{TodoItemID: uuid.Must(uuid.FromString(e.TodoItemID)), Description:e.Description, Done: false})
+		t.Items = append(t.Items, &TodoItem{TodoItemID: uuid.Must(uuid.Parse(e.TodoItemID)), Description:e.Description, Done: false})
 	case *TodoItemDone:
-		if item := t.findItem(uuid.Must(uuid.FromString(e.TodoItemID))); item != nil {
+		if item := t.findItem(uuid.Must(uuid.Parse(e.TodoItemID))); item != nil {
 			item.Done = true
 		}
 	}

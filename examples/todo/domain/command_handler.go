@@ -2,15 +2,16 @@ package domain
 
 import (
 	"context"
-	finkgoes "github.com/finktek/eventum"
 	"log"
+
+	"github.com/build-a-flow/egos"
 )
 
 type TodoCommandHandler struct {
-	AggregateStore finkgoes.AggregateStore
+	AggregateStore egos.AggregateStore
 }
 
-func (h *TodoCommandHandler) Handle(ctx context.Context, command finkgoes.Command) error {
+func (h *TodoCommandHandler) Handle(ctx context.Context, command egos.Command) error {
 	switch cmd := command.Command().(type) {
 	case *CreateTodoList:
 		todo := InitTodoList(cmd.Id.String())

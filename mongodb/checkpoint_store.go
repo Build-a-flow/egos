@@ -1,6 +1,6 @@
 package subscriptions
 
-import "github.com/finktek/eventum/subscriptions"
+import subscriptions "github.com/build-a-flow/egos/subscriptions"
 
 type MongoCheckpointStore struct {
 }

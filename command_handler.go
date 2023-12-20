@@ -1,4 +1,4 @@
-package finkgoes
+package egos
 
 import "context"
 

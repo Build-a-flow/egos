@@ -1,4 +1,4 @@
-package finkgoes
+package egos
 
 type AggregateRoot interface {
 	AggregateID() string
@@ -12,17 +12,17 @@ type AggregateRoot interface {
 }
 
 type AggregateBase struct {
-	id      string
-	currentVersion int
+	id              string
+	currentVersion  int
 	originalVersion int
-	changes  []Event
+	changes         []Event
 }
 
 func NewAggregateBase(id string) *AggregateBase {
 	return &AggregateBase{
-		id:      id,
-		changes:  []Event{},
-		currentVersion: -1,
+		id:              id,
+		changes:         []Event{},
+		currentVersion:  -1,
 		originalVersion: -1,
 	}
 }
