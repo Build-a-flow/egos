@@ -16,7 +16,7 @@ type EventStore struct {
 	client *esdb.Client
 }
 
-func NewEventStoreDbClient(connectionString string) (*EventStore, error) {
+func NewEventStoreDbClient(connectionString string) (*egos.EventStore, error) {
 
 	eventStoreDbConfig, err := esdb.ParseConnectionString(connectionString)
 	if err != nil {

@@ -1,6 +1,10 @@
 package egos
 
-import "context"
+import (
+	"context"
+
+	"github.com/build-a-flow/egos/eventstore"
+)
 
 type EventStore interface {
 	AppendEvents(ctx context.Context, streamName string, expectedVersion int, events []Event) error
@@ -9,4 +13,9 @@ type EventStore interface {
 	ReadStream(ctx context.Context, streamName string, start int, callback func())
 	TruncateStream(ctx context.Context, streamName string, position int, expectedVersion int)
 	DeleteStream(ctx context.Context, streamName string, expectedVersion int)
+}
+
+func NewEventStoreDbClient(connectionString string) (*EventStore, error) {
+	eventStore, err := eventstore.NewEventStoreDbClient(connectionString)
+	return eventStore, err
 }
