@@ -1,0 +1,4 @@
+github.com/finktek/egos v0.0.0-20231221191706-cf75e6830a60 h1:bLidJm/szRXkU7PGPaoCA4FJsIpUqnSb8XeZ4pcHH3g=
+github.com/finktek/egos v0.0.0-20231221191706-cf75e6830a60/go.mod h1:hDSiaSr/Py0wpyjXfG12P1+tV6WDFEzwSQNyfgs4FMk=
+github.com/google/uuid v1.5.0 h1:1p67kYwdtXjb0gL0BPiP1Av9wiZPo5A8z2cWkTZ+eyU=
+github.com/google/uuid v1.5.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=

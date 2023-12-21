@@ -7,7 +7,7 @@ import (
 type AggregateStore interface {
 	Load(ctx context.Context, aggregate AggregateRoot, aggregateID string) error
 	Store(ctx context.Context, aggregate AggregateRoot) error
-	Delete(ctx context.Context, aggregate AggregateRoot, aggregateID string) error
+	Delete(ctx context.Context, aggregateID string) error
 }
 
 type AggregateStoreBase struct {
