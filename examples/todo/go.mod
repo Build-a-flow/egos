@@ -1,4 +1,4 @@
-module github.com/finktek/egos/examples/todo
+module examples/todo
 
 go 1.21.4
 
