@@ -25,7 +25,7 @@ func NewAggregateStore(eventStore EventStore, aggregate AggregateRoot) (*Aggrega
 
 func (as *AggregateStoreBase) Load(ctx context.Context, aggregate AggregateRoot, aggregateID string) error {
 	stream := StreamNameFor(aggregate, aggregateID)
-	events, err := as.eventStore.ReadEvents(ctx, stream, int64(-1), int64(-1))
+	events, err := as.eventStore.ReadEvents(ctx, stream, int64(-1), int64(10000))
 	if err != nil {
 		return err
 	}

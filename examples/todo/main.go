@@ -14,7 +14,7 @@ import (
 
 func main() {
 
-	connectionString := "esdb://admin:changeit@localhost:2113?tls=false"
+	connectionString := "esdb://?tls=true"
 	eventStoreDbConfig, err := esdb.ParseConnectionString(connectionString)
 	if err != nil {
 		panic(err.Error())
