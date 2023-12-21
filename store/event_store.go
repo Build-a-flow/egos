@@ -3,7 +3,7 @@ package egos
 import (
 	"context"
 
-	"github.com/build-a-flow/egos/eventstore"
+	"github.com/finktek/egos/eventstore"
 )
 
 type EventStore interface {

@@ -5,7 +5,7 @@ import (
 )
 
 type AggregateStore interface {
-	Load(ctx context.Context, aggregate AggregateRoot, aggregateID string) error
+	Load(ctx context.Context, aggregate store.AggregateRoot, aggregateID string) error
 	Store(ctx context.Context, aggregate AggregateRoot) error
 }
 

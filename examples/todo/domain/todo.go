@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/build-a-flow/egos"
+	"github.com/finktek/egos"
 	"github.com/gofrs/uuid"
 )
 

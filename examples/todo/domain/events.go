@@ -1,6 +1,6 @@
 package domain
 
-import "github.com/build-a-flow/egos"
+import "github.com/finktek/egos"
 
 var _ = egos.RegisterEvent(TodoListCreated{})
 var _ = egos.RegisterEvent(TodoItemAdded{})

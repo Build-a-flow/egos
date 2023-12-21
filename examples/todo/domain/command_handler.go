@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	"github.com/build-a-flow/egos"
+	"github.com/finktek/egos"
 )
 
 type TodoCommandHandler struct {
