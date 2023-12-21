@@ -1,4 +1,8 @@
-github.com/finktek/egos v0.0.0-20231221191706-cf75e6830a60 h1:bLidJm/szRXkU7PGPaoCA4FJsIpUqnSb8XeZ4pcHH3g=
-github.com/finktek/egos v0.0.0-20231221191706-cf75e6830a60/go.mod h1:hDSiaSr/Py0wpyjXfG12P1+tV6WDFEzwSQNyfgs4FMk=
+github.com/finktek/egos v0.0.0-20231221181825-f347b8ecf71d h1:yxnUbJmuEtvWvAPSaSD4Ult4ZUuyUwKTaTZ0iuV3a2M=
+github.com/finktek/egos v0.0.0-20231221181825-f347b8ecf71d/go.mod h1:hDSiaSr/Py0wpyjXfG12P1+tV6WDFEzwSQNyfgs4FMk=
+github.com/finktek/egos v0.0.0-20231221195322-e3f9ceb38f0b h1:jCb0kKSixZybOnushCWA5lOwKOlsq9aqBUAoI5uEqm8=
+github.com/finktek/egos v0.0.0-20231221195322-e3f9ceb38f0b/go.mod h1:JMq8rmwg5E7yKEc2S4dCZdRaMeSd0RJGIo0KkF/W1Z8=
+github.com/finktek/egos/inmem v0.0.0-20231221191706-cf75e6830a60 h1:k2fw3kA8U5UPXNB9I/pYEv9MNcKOnaFlGjVEJQ0vSVQ=
+github.com/finktek/egos/inmem v0.0.0-20231221191706-cf75e6830a60/go.mod h1:0g2kwiY2C6pHdiGz4v/PPUY5fYWv4HLqsRB5XuGoxcQ=
 github.com/google/uuid v1.5.0 h1:1p67kYwdtXjb0gL0BPiP1Av9wiZPo5A8z2cWkTZ+eyU=
 github.com/google/uuid v1.5.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=

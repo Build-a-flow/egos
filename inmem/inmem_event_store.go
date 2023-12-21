@@ -2,6 +2,7 @@ package inmem
 
 import (
 	"context"
+	"errors"
 
 	"github.com/finktek/egos"
 )
@@ -16,28 +17,28 @@ func NewInMemEventStore() egos.EventStore {
 	}
 }
 
-func (s *InMemEventStore) AppendEvents(ctx context.Context, streamName string, expectedVersion int, events []egos.Event) error {
+func (s *InMemEventStore) AppendEvents(ctx context.Context, streamName string, expectedVersion int64, events []egos.Event) error {
 	if _, ok := s.Streams[streamName]; !ok {
 		s.Streams[streamName] = make([]egos.Event, 0)
-	}
-	if len(s.Streams[streamName]) != expectedVersion {
-		return egos.ErrConcurrencyViolation
 	}
 	s.Streams[streamName] = append(s.Streams[streamName], events...)
 	return nil
 }
 
-func (s *InMemEventStore) ReadEvents(ctx context.Context, streamName string, start int, limit int) []egos.Event {
+func (s *InMemEventStore) ReadEvents(ctx context.Context, streamName string, start int64, limit int64) ([]egos.Event, error) {
 	if _, ok := s.Streams[streamName]; !ok {
-		return nil
+		return nil, errors.New("stream not found")
 	}
-	if start > len(s.Streams[streamName]) {
-		return nil
+	if start == -1 && limit == -1 {
+		return s.Streams[streamName], nil
 	}
-	if start+limit > len(s.Streams[streamName]) {
-		return s.Streams[streamName][start:]
+	if start > int64(len(s.Streams[streamName])) {
+		return nil, errors.New("start index out of bounds")
 	}
-	return s.Streams[streamName][start : start+limit]
+	if start+limit > int64(len(s.Streams[streamName])) {
+		return s.Streams[streamName][start:], nil
+	}
+	return s.Streams[streamName][start : start+limit], nil
 }
 
 func (s *InMemEventStore) DeleteStream(ctx context.Context, streamName string) error {
