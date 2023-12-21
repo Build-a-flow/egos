@@ -1,4 +1,4 @@
-package domain
+package main
 
 import "github.com/finktek/egos"
 

@@ -1,20 +1,22 @@
-package egos
+package store
 
 import (
 	"context"
+
+	"github.com/finktek/egos"
 )
 
 type AggregateStore interface {
-	Load(ctx context.Context, aggregate store.AggregateRoot, aggregateID string) error
-	Store(ctx context.Context, aggregate AggregateRoot) error
+	Load(ctx context.Context, aggregate egos.AggregateRoot, aggregateID string) error
+	Store(ctx context.Context, aggregate egos.AggregateRoot) error
 }
 
 type AggregateStoreBase struct {
-	aggregate  AggregateRoot
+	aggregate  egos.AggregateRoot
 	eventStore EventStore
 }
 
-func NewAggregateStore(eventStore EventStore, aggregate AggregateRoot) (*AggregateStoreBase, error) {
+func NewAggregateStore(eventStore EventStore, aggregate egos.AggregateRoot) (*AggregateStoreBase, error) {
 	d := &AggregateStoreBase{
 		aggregate:  aggregate,
 		eventStore: eventStore,
@@ -22,15 +24,15 @@ func NewAggregateStore(eventStore EventStore, aggregate AggregateRoot) (*Aggrega
 	return d, nil
 }
 
-func (as *AggregateStoreBase) Load(ctx context.Context, aggregate AggregateRoot, aggregateID string) error {
-	stream := StreamNameFor(aggregate, aggregateID)
+func (as *AggregateStoreBase) Load(ctx context.Context, aggregate egos.AggregateRoot, aggregateID string) error {
+	stream := egos.StreamNameFor(aggregate, aggregateID)
 	events := as.eventStore.ReadEvents(ctx, stream, -1, -1)
 	aggregate.Fold(aggregate, events)
 	return nil
 }
 
-func (as *AggregateStoreBase) Store(ctx context.Context, aggregate AggregateRoot) error {
-	stream := StreamNameFor(aggregate, aggregate.AggregateID())
+func (as *AggregateStoreBase) Store(ctx context.Context, aggregate egos.AggregateRoot) error {
+	stream := egos.StreamNameFor(aggregate, aggregate.AggregateID())
 	changes := aggregate.GetChanges()
 	if len(changes) == 0 {
 		return nil
