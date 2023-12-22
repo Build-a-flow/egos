@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 
 	"github.com/EventStore/EventStore-Client-Go/v3/esdb"
@@ -32,18 +33,22 @@ func (s *EsdbEventStore) AppendEvents(ctx context.Context, streamName string, ex
 }
 
 func (s *EsdbEventStore) ReadEvents(ctx context.Context, streamName string, start int64, limit int64) ([]egos.Event, error) {
-	from := esdb.StreamRevision{Value: uint64(start)}
-	stream, err := s.client.ReadStream(ctx, streamName, esdb.ReadStreamOptions{From: from}, uint64(limit))
-	if err != nil {
-		if err, ok := esdb.FromError(err); !ok {
-			if err.Code() == esdb.ErrorCodeResourceNotFound {
-				return nil, errors.New("EOF")
-			}
-		}
-		return nil, err
-	} else if ctx.Err() != nil {
-		return nil, ctx.Err()
+
+	ropts := esdb.ReadStreamOptions{
+		Direction: esdb.Forwards,
+		From:      esdb.Revision(uint64(start)),
 	}
+
+	stream, err := s.client.ReadStream(ctx, streamName, ropts, uint64(limit))
+
+	if err != nil {
+		panic(err)
+	} else if ctx.Err() != nil {
+		panic(err)
+	}
+
+	defer stream.Close()
+
 	return resolvedEventsToEvents(stream), nil
 }
 
@@ -78,8 +83,14 @@ func resolvedEventsToEvents(readStream *esdb.ReadStream) []egos.Event {
 			break
 		}
 
-		if err != nil {
-			break
+		if err, ok := esdb.FromError(err); !ok {
+			if err.Code() == esdb.ErrorCodeResourceNotFound {
+				fmt.Print("Stream not found")
+			} else if errors.Is(err, io.EOF) {
+				break
+			} else {
+				panic(err)
+			}
 		}
 
 		eventData := egos.GetEventInstance(event.Event.EventType)

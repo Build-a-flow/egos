@@ -3,7 +3,6 @@ package domain
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/finktek/egos"
 )
@@ -26,7 +25,6 @@ func (h *TodoCommandHandler) Handle(ctx context.Context, command egos.Command) e
 		if err := h.AggregateStore.Load(ctx, todo, cmd.Id); err != nil {
 			return err
 		}
-		fmt.Println("todo", todo)
 		if err := todo.AddItem(cmd.TodoItemID, cmd.Description); err != nil {
 			return err
 		}

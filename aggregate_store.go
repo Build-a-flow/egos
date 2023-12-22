@@ -2,6 +2,7 @@ package egos
 
 import (
 	"context"
+	"math"
 )
 
 type AggregateStore interface {
@@ -25,7 +26,7 @@ func NewAggregateStore(eventStore EventStore, aggregate AggregateRoot) (*Aggrega
 
 func (as *AggregateStoreBase) Load(ctx context.Context, aggregate AggregateRoot, aggregateID string) error {
 	stream := StreamNameFor(aggregate, aggregateID)
-	events, err := as.eventStore.ReadEvents(ctx, stream, int64(-1), int64(10000))
+	events, err := as.eventStore.ReadEvents(ctx, stream, 0, math.MaxInt64)
 	if err != nil {
 		return err
 	}
