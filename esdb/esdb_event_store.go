@@ -59,13 +59,13 @@ func (s *EsdbEventStore) DeleteStream(ctx context.Context, streamName string) er
 func eventsToProposedEvents(events []egos.Event) []esdb.EventData {
 	var proposedEvents []esdb.EventData
 	for _, event := range events {
-		serializedData, serializedHeaders := event.Serialize()
+		serializedData, serializedMetadata := event.Serialize()
 		msg := esdb.EventData{
 			EventID:     uuid.Must(uuid.NewV4()),
 			EventType:   event.EventType(),
 			ContentType: esdb.ContentTypeJson,
 			Data:        serializedData,
-			Metadata:    serializedHeaders,
+			Metadata:    serializedMetadata,
 		}
 
 		proposedEvents = append(proposedEvents, msg)
@@ -97,8 +97,8 @@ func resolvedEventsToEvents(readStream *esdb.ReadStream) []egos.Event {
 		if eventData != nil {
 			json.Unmarshal(event.Event.Data, &eventData)
 			msg := &egos.EventDescriptor{
-				Data:    eventData,
-				Headers: make(map[string]interface{}),
+				Data:     eventData,
+				Metadata: make(map[string]interface{}),
 			}
 			events = append(events, msg)
 		}

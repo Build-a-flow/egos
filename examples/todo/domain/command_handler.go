@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/finktek/egos"
+	"github.com/gofrs/uuid"
 )
 
 type TodoCommandHandler struct {
@@ -26,6 +27,9 @@ func (h *TodoCommandHandler) Handle(ctx context.Context, command egos.Command) e
 			return err
 		}
 		if err := todo.AddItem(cmd.TodoItemID, cmd.Description); err != nil {
+			return err
+		}
+		if err := todo.AddItem(uuid.Must(uuid.NewV4()).String(), cmd.Description); err != nil {
 			return err
 		}
 		return h.AggregateStore.Store(ctx, todo)

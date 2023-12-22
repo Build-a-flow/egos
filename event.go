@@ -8,18 +8,18 @@ import (
 type Event interface {
 	GetData() interface{}
 	EventType() string
-	Serialize() (serializedData []byte, serializedHeaders []byte)
+	Serialize() (serializedData []byte, serializedMetadata []byte)
 }
 
 type EventDescriptor struct {
-	Data    interface{}
-	Headers map[string]interface{}
+	Data     interface{}
+	Metadata map[string]interface{}
 }
 
-func NewEventMessage(data interface{}) *EventDescriptor {
+func NewEventMessage(data interface{}, metadata map[string]interface{}) *EventDescriptor {
 	return &EventDescriptor{
-		Data:    data,
-		Headers: make(map[string]interface{}),
+		Data:     data,
+		Metadata: metadata,
 	}
 }
 
@@ -31,12 +31,12 @@ func (e EventDescriptor) EventType() string {
 	return typeOf(e.Data)
 }
 
-func (e EventDescriptor) Serialize() (serializedData []byte, serializedHeaders []byte) {
+func (e EventDescriptor) Serialize() (serializedData []byte, serializedMetadata []byte) {
 	serializedData, err := json.Marshal(e.Data)
 	if err != nil {
 		log.Fatalf("error serializing event data: %s", err)
 	}
-	serializedHeaders, err = json.Marshal(e.Headers)
+	serializedMetadata, err = json.Marshal(e.Metadata)
 	if err != nil {
 		log.Fatalf("error serializing event headers: %s", err)
 	}
