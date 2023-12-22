@@ -1,6 +1,6 @@
 package domain
 
-import "github.com/finktek/egos"
+import egos "github.com/finktek/egos/core"
 
 var (
 	_ = egos.RegisterEvent(TodoListCreated{})

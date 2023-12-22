@@ -3,7 +3,7 @@ package domain
 import (
 	"errors"
 
-	"github.com/finktek/egos"
+	egos "github.com/finktek/egos/core"
 )
 
 type TodoList struct {

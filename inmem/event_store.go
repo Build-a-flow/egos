@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/finktek/egos"
+	egos "github.com/finktek/egos/core"
 )
 
 type InMemEventStore struct {

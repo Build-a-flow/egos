@@ -7,24 +7,24 @@ import (
 	"log"
 
 	"github.com/EventStore/EventStore-Client-Go/v3/esdb"
-	"github.com/finktek/egos"
-	egosEsdb "github.com/finktek/egos/esdb"
+	egos "github.com/finktek/egos/core"
+	es "github.com/finktek/egos/esdb"
 	"github.com/google/uuid"
 )
 
 func main() {
-
-	connectionString := "esdb://localhost:2113?tls=true"
-	eventStoreDbConfig, err := esdb.ParseConnectionString(connectionString)
-	if err != nil {
-		panic(err.Error())
-	}
-	eventStoreDbConfig.SkipCertificateVerification = true
-
-	store, err := egosEsdb.NewEsdbEventStore(eventStoreDbConfig)
+	eventStoreDbConfig, err := esdb.ParseConnectionString("esdb://localhost:2113?tls=true")
 	if err != nil {
 		panic(err)
 	}
+	eventStoreDbConfig.SkipCertificateVerification = true
+
+	client, err := esdb.NewClient(eventStoreDbConfig)
+	if err != nil {
+		panic(err)
+	}
+
+	store := es.NewEsdbEventStore(client)
 
 	// Create an in-memory aggregate store
 	aggregateStore, err := egos.NewAggregateStore(store, &domain.TodoList{})
@@ -82,5 +82,4 @@ func main() {
 	todoData, _ := json.Marshal(&todo)
 
 	log.Println("TODO ", string(todoData))
-
 }

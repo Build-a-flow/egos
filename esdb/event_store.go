@@ -8,7 +8,7 @@ import (
 	"io"
 
 	"github.com/EventStore/EventStore-Client-Go/v3/esdb"
-	"github.com/finktek/egos"
+	egos "github.com/finktek/egos/core"
 	"github.com/gofrs/uuid"
 )
 
@@ -16,12 +16,8 @@ type EsdbEventStore struct {
 	client *esdb.Client
 }
 
-func NewEsdbEventStore(config *esdb.Configuration) (egos.EventStore, error) {
-	client, err := esdb.NewClient(config)
-	if err != nil {
-		return nil, err
-	}
-	return &EsdbEventStore{client}, nil
+func NewEsdbEventStore(client *esdb.Client) egos.EventStore {
+	return &EsdbEventStore{client}
 }
 
 func (s *EsdbEventStore) AppendEvents(ctx context.Context, streamName string, expectedVersion int64, events []egos.Event) error {
