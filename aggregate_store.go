@@ -3,9 +3,12 @@ package egos
 import (
 	"context"
 	"math"
+
+	"github.com/gofrs/uuid"
 )
 
 type AggregateStore interface {
+	NewId(ctx context.Context) string
 	Load(ctx context.Context, aggregate AggregateRoot, aggregateID string) error
 	Store(ctx context.Context, aggregate AggregateRoot) error
 	Delete(ctx context.Context, aggregateID string) error
@@ -22,6 +25,10 @@ func NewAggregateStore(eventStore EventStore, aggregate AggregateRoot) (*Aggrega
 		eventStore: eventStore,
 	}
 	return d, nil
+}
+
+func (as *AggregateStoreBase) NewId(ctx context.Context) string {
+	return uuid.Must(uuid.NewV4()).String()
 }
 
 func (as *AggregateStoreBase) Load(ctx context.Context, aggregate AggregateRoot, aggregateID string) error {

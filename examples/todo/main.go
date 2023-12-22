@@ -14,7 +14,7 @@ import (
 
 func main() {
 
-	connectionString := "esdb://baf:SFn5&M9EuyxZ2V@85.206.85.25:2113?tls=true"
+	connectionString := "esdb://localhost:2113?tls=true"
 	eventStoreDbConfig, err := esdb.ParseConnectionString(connectionString)
 	if err != nil {
 		panic(err.Error())
@@ -74,8 +74,8 @@ func main() {
 		panic(err)
 	}
 
-	todo := domain.Init()
-	if err := aggregateStore.Load(context.Background(), todo, todoListID); err != nil {
+	todo := domain.Init(todoListID)
+	if err := aggregateStore.Load(context.Background(), &todo, todoListID); err != nil {
 		log.Println("error loading todo list: ", err)
 	}
 

@@ -18,15 +18,15 @@ type TodoItem struct {
 	Done        bool
 }
 
-func Init() *TodoList {
-	todoAggregate := &TodoList{}
-	base := egos.NewAggregateBase(todoAggregate.When)
-	todoAggregate.AggregateBase = base
-	return todoAggregate
+func Init(id string) TodoList {
+	aggregate := TodoList{}
+	aggregate.AggregateBase = egos.NewAggregateBase(aggregate.When)
+	aggregate.AggregateBase.SetAggregateID(id)
+	return aggregate
 }
 
-func (t *TodoList) CreateTodoList(id string, title string) error {
-	t.AggregateBase.Apply(&TodoListCreated{Id: id, Title: title})
+func (t *TodoList) CreateTodoList(title string) error {
+	t.AggregateBase.Apply(&TodoListCreated{Title: title})
 	return nil
 }
 
@@ -52,7 +52,6 @@ func (t *TodoList) ItemDone(todoItemID string) error {
 func (t *TodoList) When(event egos.Event) error {
 	switch e := event.GetData().(type) {
 	case *TodoListCreated:
-		t.SetAggregateID(e.Id)
 		t.Title = e.Title
 	case *TodoItemAdded:
 		t.Items = append(t.Items, &TodoItem{TodoItemID: e.TodoItemID, Description: e.Description, Done: false})

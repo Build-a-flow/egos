@@ -9,7 +9,6 @@ var (
 )
 
 type TodoListCreated struct {
-	Id    string
 	Title string
 }
 
