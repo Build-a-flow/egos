@@ -3,6 +3,7 @@ package domain
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/finktek/egos"
 	"github.com/gofrs/uuid"
@@ -15,14 +16,16 @@ type TodoCommandHandler struct {
 func (h *TodoCommandHandler) Handle(ctx context.Context, command egos.Command) error {
 	switch cmd := command.Command().(type) {
 	case *CreateTodoList:
-		todo := Init(cmd.Id)
-		err := todo.CreateTodoList(cmd.Title)
+		todoID := uuid.Must(uuid.NewV4()).String()
+		todo := Init()
+		err := todo.CreateTodoList(todoID, cmd.Title)
 		if err != nil {
 			return err
 		}
+		fmt.Println(todo.AggregateID())
 		return h.AggregateStore.Store(ctx, todo)
 	case *AddTodoItem:
-		todo := Init(cmd.Id)
+		todo := Init()
 		if err := h.AggregateStore.Load(ctx, todo, cmd.Id); err != nil {
 			return err
 		}
@@ -34,7 +37,7 @@ func (h *TodoCommandHandler) Handle(ctx context.Context, command egos.Command) e
 		}
 		return h.AggregateStore.Store(ctx, todo)
 	case *MarkItemAsDone:
-		todo := Init(cmd.Id)
+		todo := Init()
 		if err := h.AggregateStore.Load(ctx, todo, cmd.Id); err != nil {
 			return err
 		}

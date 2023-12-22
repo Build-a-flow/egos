@@ -74,7 +74,7 @@ func main() {
 		panic(err)
 	}
 
-	todo := domain.Init(todoListID)
+	todo := domain.Init()
 	if err := aggregateStore.Load(context.Background(), todo, todoListID); err != nil {
 		log.Println("error loading todo list: ", err)
 	}

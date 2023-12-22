@@ -4,13 +4,14 @@ import "fmt"
 
 type AggregateRoot interface {
 	AggregateID() string
+	SetAggregateID(id string)
 	CurrentVersion() int
 	OriginalVersion() int
-	When(event Event)
-	Apply(aggregate AggregateRoot, event interface{})
 	GetChanges() []Event
 	Fold(aggregate AggregateRoot, events []Event)
 	ClearChanges()
+	Apply(event interface{})
+	When
 }
 
 type AggregateBase struct {
@@ -18,15 +19,26 @@ type AggregateBase struct {
 	currentVersion  int
 	originalVersion int
 	changes         []Event
+	when            when
 }
 
-func NewAggregateBase(id string) *AggregateBase {
+type When interface {
+	When(event Event) error
+}
+
+type when func(event Event) error
+
+func NewAggregateBase(when when) *AggregateBase {
 	return &AggregateBase{
-		id:              id,
 		changes:         []Event{},
 		currentVersion:  -1,
 		originalVersion: -1,
+		when:            when,
 	}
+}
+
+func (a *AggregateBase) SetAggregateID(id string) {
+	a.id = id
 }
 
 func (a *AggregateBase) AggregateID() string {
@@ -41,12 +53,12 @@ func (a *AggregateBase) OriginalVersion() int {
 	return a.originalVersion
 }
 
-func (a *AggregateBase) Apply(aggregate AggregateRoot, event interface{}) {
+func (a *AggregateBase) Apply(event interface{}) {
 	metadata := make(map[string]interface{})
 	metadata["version"] = fmt.Sprint(a.currentVersion + 1)
 	metadata["original_version"] = fmt.Sprint(a.originalVersion + 1)
 	eventMessage := NewEventMessage(event, metadata)
-	aggregate.When(eventMessage)
+	a.when(eventMessage)
 	a.changes = append(a.changes, eventMessage)
 	a.currentVersion++
 }

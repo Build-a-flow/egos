@@ -86,6 +86,7 @@ func resolvedEventsToEvents(readStream *esdb.ReadStream) []egos.Event {
 		if err, ok := esdb.FromError(err); !ok {
 			if err.Code() == esdb.ErrorCodeResourceNotFound {
 				fmt.Print("Stream not found")
+				panic(err)
 			} else if errors.Is(err, io.EOF) {
 				break
 			} else {
