@@ -2,6 +2,7 @@ package esdb
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/EventStore/EventStore-Client-Go/v3/esdb"
@@ -10,14 +11,18 @@ import (
 
 type AllStreamSubscription struct {
 	*egos.BaseSubscription
-	client       *esdb.Client
-	subscription *esdb.Subscription
+	subscriptionName string
+	client           *esdb.Client
+	subscription     *esdb.Subscription
+	checkpointStore  egos.CheckpointStore
 }
 
-func NewAllStreamSubscription(client *esdb.Client) egos.Subscription {
+func NewAllStreamSubscription(subscriptionName string, client *esdb.Client, checkpointStore egos.CheckpointStore) egos.Subscription {
 	return &AllStreamSubscription{
 		BaseSubscription: &egos.BaseSubscription{},
+		subscriptionName: subscriptionName,
 		client:           client,
+		checkpointStore:  checkpointStore,
 	}
 }
 
@@ -31,7 +36,15 @@ func (s *AllStreamSubscription) Stop() error {
 }
 
 func (s *AllStreamSubscription) subscribe(ctx context.Context) {
-	subscription, err := s.client.SubscribeToAll(ctx, esdb.SubscribeToAllOptions{})
+	checkoint := s.checkpointStore.GetLastCheckpoint(s.subscriptionName)
+	options := esdb.SubscribeToAllOptions{
+		From: esdb.Position{
+			Commit:  checkoint.Position,
+			Prepare: checkoint.Position,
+		},
+		Filter: esdb.ExcludeSystemEventsFilter(),
+	}
+	subscription, err := s.client.SubscribeToAll(ctx, options)
 
 	if err != nil {
 		panic(err)
@@ -41,13 +54,29 @@ func (s *AllStreamSubscription) subscribe(ctx context.Context) {
 	for {
 		event := s.subscription.Recv()
 
-		if event.EventAppeared != nil {
-			fmt.Println(fmt.Sprintf("%s:%s", event.EventAppeared.Event.StreamID, event.EventAppeared.Event.EventType))
-		}
-
 		if event.SubscriptionDropped != nil {
+			fmt.Println("Subscription dropped", event.SubscriptionDropped.Error.Error())
+			options.From = event.EventAppeared.OriginalEvent().Position
 			break
 		}
-	}
 
+		if event.EventAppeared != nil {
+			data := resolvedEventToEvent(event.EventAppeared)
+			s.Handle(data)
+			checkoint.Position = event.EventAppeared.OriginalEvent().Position.Commit
+			s.checkpointStore.StoreCheckpoint(checkoint)
+		}
+	}
+}
+
+func resolvedEventToEvent(resolvedEvent *esdb.ResolvedEvent) egos.Event {
+	eventData := egos.GetEventInstance(resolvedEvent.Event.EventType)
+	if eventData != nil {
+		json.Unmarshal(resolvedEvent.Event.Data, &eventData)
+		return &egos.EventDescriptor{
+			Data:     eventData,
+			Metadata: make(map[string]interface{}),
+		}
+	}
+	return nil
 }

@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	eventStoreDbConfig, err := esdb.ParseConnectionString("esdb://localhost:2113?tls=true")
+	eventStoreDbConfig, err := esdb.ParseConnectionString("esdb+discover://localhost:2113?tls=false")
 	if err != nil {
 		panic(err)
 	}

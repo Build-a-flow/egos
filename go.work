@@ -6,4 +6,5 @@ use (
 	./inmem
 	./esdb
 	./core
+	./postgres
 )
