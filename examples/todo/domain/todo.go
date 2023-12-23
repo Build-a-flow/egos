@@ -25,8 +25,10 @@ func Init(id string) TodoList {
 	return aggregate
 }
 
-func (t *TodoList) CreateTodoList(title string) error {
-	t.AggregateBase.Apply(&TodoListCreated{Title: title})
+func (t *TodoList) CreateTodoList(userID string, title string) error {
+	metadata := t.AggregateBase.EmptyMetadata()
+	metadata["$correlationId"] = userID
+	t.AggregateBase.ApplyWithMetadata(&TodoListCreated{Title: title}, metadata)
 	return nil
 }
 

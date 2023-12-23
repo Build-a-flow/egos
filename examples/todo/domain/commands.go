@@ -1,8 +1,9 @@
 package domain
 
 type CreateTodoList struct {
-	Id    string
-	Title string
+	UserID string
+	Id     string
+	Title  string
 }
 
 type AddTodoItem struct {

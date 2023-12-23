@@ -72,6 +72,9 @@ func (s *AllStreamSubscription) subscribe(ctx context.Context) {
 func resolvedEventToEvent(resolvedEvent *esdb.ResolvedEvent) egos.Event {
 	eventData := egos.GetEventInstance(resolvedEvent.Event.EventType)
 	if eventData != nil {
+		var user map[string]interface{}
+		json.Unmarshal(resolvedEvent.Event.UserMetadata, &user)
+		fmt.Println(user)
 		json.Unmarshal(resolvedEvent.Event.Data, &eventData)
 		return &egos.EventDescriptor{
 			Data:     eventData,

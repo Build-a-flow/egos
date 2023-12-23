@@ -4,15 +4,17 @@ go 1.21.4
 
 require (
 	github.com/EventStore/EventStore-Client-Go/v3 v3.2.1
-	github.com/finktek/egos v0.0.0-20231221195322-e3f9ceb38f0b
+	github.com/finktek/egos/core v0.0.0-20231222220332-e088510e03b3
 	github.com/finktek/egos/esdb v0.0.0-20231221203632-b170f8ef44e7
+	github.com/finktek/egos/postgres v0.0.0-20231222220332-e088510e03b3
+	github.com/gofrs/uuid v4.4.0+incompatible
 	github.com/google/uuid v1.3.1
+	github.com/lib/pq v1.10.9
 )
 
 require (
-	github.com/gofrs/uuid v4.4.0+incompatible // indirect
+	github.com/finktek/egos v0.0.0-20231221195322-e3f9ceb38f0b // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/lib/pq v1.10.9 // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect

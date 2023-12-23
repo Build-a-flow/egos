@@ -1,7 +1,5 @@
 package egos
 
-import "fmt"
-
 type AggregateRoot interface {
 	AggregateID() string
 	SetAggregateID(id string)
@@ -10,7 +8,9 @@ type AggregateRoot interface {
 	GetChanges() []Event
 	Fold(aggregate AggregateRoot, events []Event)
 	ClearChanges()
+	EmptyMetadata() map[string]interface{}
 	Apply(event interface{})
+	ApplyWithMetadata(event interface{}, metadata map[string]interface{})
 	When
 }
 
@@ -53,10 +53,15 @@ func (a *AggregateBase) OriginalVersion() int {
 	return a.originalVersion
 }
 
+func (a *AggregateBase) EmptyMetadata() map[string]interface{} {
+	return make(map[string]interface{})
+}
+
 func (a *AggregateBase) Apply(event interface{}) {
-	metadata := make(map[string]interface{})
-	metadata["version"] = fmt.Sprint(a.currentVersion + 1)
-	metadata["original_version"] = fmt.Sprint(a.originalVersion + 1)
+	a.ApplyWithMetadata(event, a.EmptyMetadata())
+}
+
+func (a *AggregateBase) ApplyWithMetadata(event interface{}, metadata map[string]interface{}) {
 	eventMessage := NewEventMessage(event, metadata)
 	a.when(eventMessage)
 	a.changes = append(a.changes, eventMessage)

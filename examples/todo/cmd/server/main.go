@@ -35,7 +35,7 @@ func main() {
 	commandHandler := &domain.TodoCommandHandler{AggregateStore: aggregateStore}
 
 	todoListID := uuid.New().String()
-	cmd := egos.NewCommand(&domain.CreateTodoList{Id: todoListID, Title: "My Todo"})
+	cmd := egos.NewCommand(&domain.CreateTodoList{UserID: "user-g12g3g3h1", Id: todoListID, Title: "My Todo"})
 	err = commandHandler.Handle(context.Background(), cmd)
 	if err != nil {
 		panic(err)

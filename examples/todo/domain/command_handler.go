@@ -16,7 +16,7 @@ func (h *TodoCommandHandler) Handle(ctx context.Context, command egos.Command) e
 	switch cmd := command.Command().(type) {
 	case *CreateTodoList:
 		todo := Init(cmd.Id)
-		err := todo.CreateTodoList(cmd.Title)
+		err := todo.CreateTodoList(cmd.UserID, cmd.Title)
 		if err != nil {
 			return err
 		}
