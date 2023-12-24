@@ -16,7 +16,7 @@ func (h *TodoCommandHandler) Handle(ctx context.Context, command egos.Command) e
 	switch cmd := command.Command().(type) {
 	case *CreateTodoList:
 		todo := Init(cmd.Id)
-		err := todo.CreateTodoList(cmd.UserID, cmd.Title)
+		err := todo.CreateTodoList(ctx, cmd.Title)
 		if err != nil {
 			return err
 		}
@@ -26,10 +26,10 @@ func (h *TodoCommandHandler) Handle(ctx context.Context, command egos.Command) e
 		if err := h.AggregateStore.Load(ctx, &todo, cmd.Id); err != nil {
 			return err
 		}
-		if err := todo.AddItem(cmd.TodoItemID, cmd.Description); err != nil {
+		if err := todo.AddItem(ctx, cmd.TodoItemID, cmd.Description); err != nil {
 			return err
 		}
-		if err := todo.AddItem(uuid.Must(uuid.NewV4()).String(), cmd.Description); err != nil {
+		if err := todo.AddItem(ctx, uuid.Must(uuid.NewV4()).String(), cmd.Description); err != nil {
 			return err
 		}
 		return h.AggregateStore.Store(ctx, &todo)
@@ -38,7 +38,7 @@ func (h *TodoCommandHandler) Handle(ctx context.Context, command egos.Command) e
 		if err := h.AggregateStore.Load(ctx, &todo, cmd.Id); err != nil {
 			return err
 		}
-		if err := todo.ItemDone(cmd.TodoItemID); err != nil {
+		if err := todo.ItemDone(ctx, cmd.TodoItemID); err != nil {
 			return err
 		}
 		return h.AggregateStore.Store(ctx, &todo)

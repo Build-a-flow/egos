@@ -13,10 +13,10 @@ type Event interface {
 
 type EventDescriptor struct {
 	Data     interface{}
-	Metadata map[string]interface{}
+	Metadata Metadata
 }
 
-func NewEventMessage(data interface{}, metadata map[string]interface{}) *EventDescriptor {
+func NewEventMessage(data interface{}, metadata Metadata) *EventDescriptor {
 	return &EventDescriptor{
 		Data:     data,
 		Metadata: metadata,
@@ -36,7 +36,7 @@ func (e EventDescriptor) Serialize() (serializedData []byte, serializedMetadata 
 	if err != nil {
 		log.Fatalf("error serializing event data: %s", err)
 	}
-	serializedMetadata, err = json.Marshal(e.Metadata)
+	serializedMetadata, err = json.Marshal(e.Metadata.All())
 	if err != nil {
 		log.Fatalf("error serializing event headers: %s", err)
 	}

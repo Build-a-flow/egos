@@ -1,5 +1,7 @@
 package egos
 
+import "context"
+
 type AggregateRoot interface {
 	AggregateID() string
 	SetAggregateID(id string)
@@ -9,8 +11,7 @@ type AggregateRoot interface {
 	Fold(aggregate AggregateRoot, events []Event)
 	ClearChanges()
 	EmptyMetadata() map[string]interface{}
-	Apply(event interface{})
-	ApplyWithMetadata(event interface{}, metadata map[string]interface{})
+	Apply(ctx context.Context, event interface{})
 	When
 }
 
@@ -57,12 +58,13 @@ func (a *AggregateBase) EmptyMetadata() map[string]interface{} {
 	return make(map[string]interface{})
 }
 
-func (a *AggregateBase) Apply(event interface{}) {
-	a.ApplyWithMetadata(event, a.EmptyMetadata())
-}
-
-func (a *AggregateBase) ApplyWithMetadata(event interface{}, metadata map[string]interface{}) {
-	eventMessage := NewEventMessage(event, metadata)
+func (a *AggregateBase) Apply(ctx context.Context, event interface{}) {
+	metadata := ctx.Value("metadata")
+	eventMetadata := NewMetadata()
+	if metadata != nil {
+		eventMetadata = metadata.(Metadata)
+	}
+	eventMessage := NewEventMessage(event, eventMetadata)
 	a.when(eventMessage)
 	a.changes = append(a.changes, eventMessage)
 	a.currentVersion++

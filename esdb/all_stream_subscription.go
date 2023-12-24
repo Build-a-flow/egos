@@ -78,7 +78,7 @@ func resolvedEventToEvent(resolvedEvent *esdb.ResolvedEvent) egos.Event {
 		json.Unmarshal(resolvedEvent.Event.Data, &eventData)
 		return &egos.EventDescriptor{
 			Data:     eventData,
-			Metadata: make(map[string]interface{}),
+			Metadata: egos.NewMetadata(),
 		}
 	}
 	return nil

@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"errors"
 
 	egos "github.com/finktek/egos/core"
@@ -25,44 +26,28 @@ func Init(id string) TodoList {
 	return aggregate
 }
 
-func (t *TodoList) CreateTodoList(userID string, title string) error {
-	metadata := t.AggregateBase.EmptyMetadata()
-	metadata["$correlationId"] = userID
-	t.AggregateBase.ApplyWithMetadata(&TodoListCreated{Title: title}, metadata)
+func (t *TodoList) CreateTodoList(ctx context.Context, title string) error {
+	t.AggregateBase.Apply(ctx, &TodoListCreated{Title: title})
 	return nil
 }
 
-func (t *TodoList) AddItem(todoItemID string, todoDescription string) error {
+func (t *TodoList) AddItem(ctx context.Context, todoItemID string, todoDescription string) error {
 	if todoItemID == "" {
 		return errors.New("todo ID is required")
 	}
 	if todoDescription == "" {
 		return errors.New("todo Description is required")
 	}
-	t.AggregateBase.Apply(&TodoItemAdded{TodoItemID: todoItemID, Description: todoDescription})
+	t.AggregateBase.Apply(ctx, &TodoItemAdded{TodoItemID: todoItemID, Description: todoDescription})
 	return nil
 }
 
-func (t *TodoList) ItemDone(todoItemID string) error {
+func (t *TodoList) ItemDone(ctx context.Context, todoItemID string) error {
 	if item := t.findItem(todoItemID); item != nil && item.Done == false {
-		t.AggregateBase.Apply(&TodoItemDone{TodoItemID: item.TodoItemID})
+		t.AggregateBase.Apply(ctx, &TodoItemDone{TodoItemID: item.TodoItemID})
 		return nil
 	}
 	return errors.New("could not mark item as Done")
-}
-
-func (t *TodoList) When(event egos.Event) error {
-	switch e := event.GetData().(type) {
-	case *TodoListCreated:
-		t.Title = e.Title
-	case *TodoItemAdded:
-		t.Items = append(t.Items, &TodoItem{TodoItemID: e.TodoItemID, Description: e.Description, Done: false})
-	case *TodoItemDone:
-		if item := t.findItem(e.TodoItemID); item != nil {
-			item.Done = true
-		}
-	}
-	return nil
 }
 
 func (t *TodoList) findItem(todoItemID string) *TodoItem {

@@ -34,48 +34,52 @@ func main() {
 
 	commandHandler := &domain.TodoCommandHandler{AggregateStore: aggregateStore}
 
+	metadata := egos.NewMetadata()
+	metadata.Add("$correlationId", "user-123456")
+	ctx := metadata.Context(context.Background())
+
 	todoListID := uuid.New().String()
-	cmd := egos.NewCommand(&domain.CreateTodoList{UserID: "user-g12g3g3h1", Id: todoListID, Title: "My Todo"})
-	err = commandHandler.Handle(context.Background(), cmd)
+	cmd := egos.NewCommand(&domain.CreateTodoList{Id: todoListID, Title: "My Todo"})
+	err = commandHandler.Handle(ctx, cmd)
 	if err != nil {
 		panic(err)
 	}
 
 	todoItemID := uuid.New().String()
 	cmd2 := egos.NewCommand(&domain.AddTodoItem{Id: todoListID, TodoItemID: todoItemID, Description: "Do something good"})
-	err = commandHandler.Handle(context.Background(), cmd2)
+	err = commandHandler.Handle(ctx, cmd2)
 	if err != nil {
 		panic(err)
 	}
 
 	todoItemID2 := uuid.New().String()
 	cmd3 := egos.NewCommand(&domain.AddTodoItem{Id: todoListID, TodoItemID: todoItemID2, Description: "Do nothing for the rest of the day"})
-	err = commandHandler.Handle(context.Background(), cmd3)
+	err = commandHandler.Handle(ctx, cmd3)
 	if err != nil {
 		panic(err)
 	}
 
 	todoItemID3 := uuid.New().String()
 	cmd4 := egos.NewCommand(&domain.AddTodoItem{Id: todoListID, TodoItemID: todoItemID3, Description: "Sleep"})
-	err = commandHandler.Handle(context.Background(), cmd4)
+	err = commandHandler.Handle(ctx, cmd4)
 	if err != nil {
 		panic(err)
 	}
 
 	cmd5 := egos.NewCommand(&domain.MarkItemAsDone{Id: todoListID, TodoItemID: todoItemID})
-	err = commandHandler.Handle(context.Background(), cmd5)
+	err = commandHandler.Handle(ctx, cmd5)
 	if err != nil {
 		panic(err)
 	}
 
 	cmd6 := egos.NewCommand(&domain.MarkItemAsDone{Id: todoListID, TodoItemID: todoItemID2})
-	err = commandHandler.Handle(context.Background(), cmd6)
+	err = commandHandler.Handle(context.TODO(), cmd6)
 	if err != nil {
 		panic(err)
 	}
 
 	todo := domain.Init(todoListID)
-	if err := aggregateStore.Load(context.Background(), &todo, todoListID); err != nil {
+	if err := aggregateStore.Load(ctx, &todo, todoListID); err != nil {
 		log.Println("error loading todo list: ", err)
 	}
 
