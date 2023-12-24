@@ -1,2 +1,4 @@
-github.com/finktek/egos v0.0.0-20231221191706-cf75e6830a60 h1:bLidJm/szRXkU7PGPaoCA4FJsIpUqnSb8XeZ4pcHH3g=
-github.com/finktek/egos v0.0.0-20231221191706-cf75e6830a60/go.mod h1:hDSiaSr/Py0wpyjXfG12P1+tV6WDFEzwSQNyfgs4FMk=
+github.com/finktek/egos/core v0.0.0-20231223202513-956d6bc6e416 h1:VXcvp4ZuaNGxmxnZHcVgJx18artW/VMPlxF8YfaCD30=
+github.com/finktek/egos/core v0.0.0-20231223202513-956d6bc6e416/go.mod h1:bhNn9jwzEAWh5AHIkVvxuoSXz6cAxH711OG81OAksIc=
+github.com/gofrs/uuid v4.4.0+incompatible h1:3qXRTX8/NbyulANqlc0lchS1gqAVxRgsuW1YrTJupqA=
+github.com/gofrs/uuid v4.4.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=

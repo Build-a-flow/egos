@@ -4,7 +4,7 @@ go 1.21.4
 
 require (
 	github.com/EventStore/EventStore-Client-Go/v3 v3.2.1
-	github.com/finktek/egos v0.0.0-20231221195322-e3f9ceb38f0b
+	github.com/finktek/egos/core v0.0.0-20231223202513-956d6bc6e416
 	github.com/gofrs/uuid v4.4.0+incompatible
 )
 
