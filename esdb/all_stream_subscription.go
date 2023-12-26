@@ -2,6 +2,7 @@ package esdb
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/EventStore/EventStore-Client-Go/v3/esdb"
@@ -70,10 +71,16 @@ func (s *AllStreamSubscription) subscribe(ctx context.Context) {
 
 func resolvedEventToEvent(resolvedEvent *esdb.ResolvedEvent) egos.Event {
 	eventData := egos.GetEventInstance(resolvedEvent.Event.EventType)
+	m := make(map[string]interface{})
+	err := json.Unmarshal(resolvedEvent.Event.UserMetadata, &m)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+
 	if eventData != nil {
 		return &egos.EventDescriptor{
 			Data:     eventData,
-			Metadata: egos.NewMetadata(),
+			Metadata: egos.NewMetadata(&m),
 		}
 	}
 	return nil

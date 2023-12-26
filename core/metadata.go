@@ -6,9 +6,9 @@ type Metadata struct {
 	data map[string]interface{}
 }
 
-func NewMetadata() *Metadata {
+func NewMetadata(data *map[string]interface{}) *Metadata {
 	return &Metadata{
-		data: make(map[string]interface{}),
+		data: *data,
 	}
 }
 

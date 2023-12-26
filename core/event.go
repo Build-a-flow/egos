@@ -7,6 +7,7 @@ import (
 
 type Event interface {
 	GetData() interface{}
+	GetMetadata() *Metadata
 	EventType() string
 	Serialize() (serializedData []byte, serializedMetadata []byte)
 }
@@ -25,6 +26,10 @@ func NewEventMessage(data interface{}, metadata *Metadata) *EventDescriptor {
 
 func (e EventDescriptor) GetData() interface{} {
 	return e.Data
+}
+
+func (e EventDescriptor) GetMetadata() *Metadata {
+	return e.Metadata
 }
 
 func (e EventDescriptor) EventType() string {
