@@ -13,10 +13,10 @@ type Event interface {
 
 type EventDescriptor struct {
 	Data     interface{}
-	Metadata Metadata
+	Metadata *Metadata
 }
 
-func NewEventMessage(data interface{}, metadata Metadata) *EventDescriptor {
+func NewEventMessage(data interface{}, metadata *Metadata) *EventDescriptor {
 	return &EventDescriptor{
 		Data:     data,
 		Metadata: metadata,
