@@ -60,7 +60,7 @@ func (a *AggregateBase) EmptyMetadata() map[string]interface{} {
 
 func (a *AggregateBase) Apply(ctx context.Context, event interface{}) {
 	metadata := ctx.Value("metadata")
-	eventMetadata := NewMetadata()
+	eventMetadata := NewMetadata(nil)
 	if metadata != nil {
 		eventMetadata = metadata.(*Metadata)
 	}
