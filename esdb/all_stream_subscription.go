@@ -32,7 +32,7 @@ func (s *AllStreamSubscription) Start(ctx context.Context) error {
 }
 
 func (s *AllStreamSubscription) Stop() error {
-	return nil
+	return s.client.Close()
 }
 
 func (s *AllStreamSubscription) subscribe(ctx context.Context) {
