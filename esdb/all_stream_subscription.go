@@ -79,6 +79,7 @@ func resolvedEventToEvent(resolvedEvent *esdb.ResolvedEvent) egos.Event {
 	metadata := egos.NewMetadata()
 	metadata.AddAll(m)
 	if eventData != nil {
+		json.Unmarshal(resolvedEvent.Event.Data, &eventData)
 		return &egos.EventDescriptor{
 			Data:     eventData,
 			Metadata: metadata,
