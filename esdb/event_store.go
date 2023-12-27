@@ -91,11 +91,18 @@ func resolvedEventsToEvents(readStream *esdb.ReadStream) []egos.Event {
 		}
 
 		eventData := egos.GetEventInstance(event.Event.EventType)
+		m := make(map[string]interface{})
+		err = json.Unmarshal(event.Event.UserMetadata, &m)
+		if err != nil {
+			fmt.Println("error:", err)
+		}
+		metadata := egos.NewMetadata()
+		metadata.AddAll(m)
 		if eventData != nil {
 			json.Unmarshal(event.Event.Data, &eventData)
 			msg := &egos.EventDescriptor{
 				Data:     eventData,
-				Metadata: egos.NewMetadata(nil),
+				Metadata: metadata,
 			}
 			events = append(events, msg)
 		}

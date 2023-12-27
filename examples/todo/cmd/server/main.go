@@ -34,7 +34,7 @@ func main() {
 
 	commandHandler := &domain.TodoCommandHandler{AggregateStore: aggregateStore}
 
-	metadata := egos.NewMetadata(nil)
+	metadata := egos.NewMetadata()
 	metadata.Add("$correlationId", "user-123456")
 	ctx := metadata.Context(context.Background())
 

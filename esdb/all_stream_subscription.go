@@ -76,11 +76,12 @@ func resolvedEventToEvent(resolvedEvent *esdb.ResolvedEvent) egos.Event {
 	if err != nil {
 		fmt.Println("error:", err)
 	}
-
+	metadata := egos.NewMetadata()
+	metadata.AddAll(m)
 	if eventData != nil {
 		return &egos.EventDescriptor{
 			Data:     eventData,
-			Metadata: egos.NewMetadata(&m),
+			Metadata: metadata,
 		}
 	}
 	return nil
